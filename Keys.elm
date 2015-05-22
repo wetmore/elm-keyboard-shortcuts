@@ -15,11 +15,12 @@ import Dict exposing (Dict)
 import String
 import Char
 
-type RawKeys = KeysDown (Set KeyCode, Set KeyCode) | Presses KeyCode
 type Modifier = Shift | Ctrl | Alt | Meta
 type alias Modifiers = List Modifier
 type Key  = Press Char | Chord Modifiers Key
           | Esc | Return | Tab | CapsLock | Up | Down | Left | Right
+
+type RawKeys = KeysDown (Set KeyCode, Set KeyCode) | Presses KeyCode
 
 
 specialKeys = Dict.fromList <|
@@ -140,14 +141,7 @@ keys : Signal Key
 keys = Signal.filterMap toKey Esc s
 
 main : Signal Element
-main = (\x -> flow down (field::(List.map show x))) <~ (Signal.foldp (::) [] keys)
-
-
-content : Signal.Mailbox Field.Content
-content =
-  Signal.mailbox Field.noContent
-
-field =  Field.field Field.defaultStyle (Signal.message content.address) "Type here!" Field.noContent
+main = (\x -> flow down (List.map show x)) <~ (Signal.foldp (::) [] keys)
 
 
 draw list = let
