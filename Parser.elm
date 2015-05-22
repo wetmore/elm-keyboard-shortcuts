@@ -1,9 +1,10 @@
-module Parser (parse) where
+module Parser (parse, Outcome) where
 
 import Result exposing (andThen)
-import Keys exposing (Key(..), Modifier(..))
+import Keys exposing (Key(..), Modifier(..), Modifiers)
 import ComboState exposing (..)
 
+import Dict exposing (Dict)
 import Maybe
 import List exposing (head, tail, reverse)
 import String
@@ -23,8 +24,17 @@ parseAtoms s = case cotail <| String.split "+" s of
     pair = Result.map2 (,) parsedMods parsedKey
     makeKey (x,y) = case x of
       [] -> Ok <| y
-      xs -> Ok <| Chord xs y 
+      xs -> Ok <| mergeModifiers xs y 
   in pair `andThen` makeKey
+
+mergeModifiers : Modifiers -> Key -> Key
+mergeModifiers ms key = case key of
+  (Chord ms' k) -> let
+      merge = List.foldr (\x ys -> if x `List.member` ys then ys else x :: ys)
+    in Chord (merge ms ms') k
+  k -> case ms of
+    [] -> k
+    _  -> Chord ms k  
 
 return : a -> Outcome a
 return = Ok
@@ -55,8 +65,11 @@ parseKey s = case s of
   "down"   -> Ok Down
   "left"   -> Ok Left
   "right"  -> Ok Right
+  "plus"   -> Ok <| Press '+'
   x        -> case String.toList x of
-    [c] -> Ok <| Press c
+    [c] -> Ok <| case Dict.get c shiftMap of
+      Just downShifted -> Chord [Shift] (Press downShifted)
+      Nothing          -> Press c
     _   -> Err <| "Unknown non-modifier key: " ++ x
 
 cotail : List a -> Maybe (List a, a)
@@ -64,3 +77,26 @@ cotail list = let
     flipped    = reverse list
     addHead tl = Maybe.map ((,) tl) <| head flipped
   in tail flipped `Maybe.andThen` addHead
+
+shiftMap : Dict Char Char
+shiftMap = Dict.fromList <|
+       [ ('~', '`')
+       , ('!', '1')
+       , ('@', '2')
+       , ('#', '3')
+       , ('$', '4')
+       , ('%', '5')
+       , ('^', '6')
+       , ('&', '7')
+       , ('*', '8')
+       , ('(', '9')
+       , (')', '0')
+       , ('_', '-')
+       , ('+', '=')
+       , (':', ';')
+       , ('"', '\'')
+       , ('<', ',')
+       , ('>', '.')
+       , ('?', '/')
+       , ('|', '\\')
+       ]
