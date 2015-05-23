@@ -1,5 +1,7 @@
 module Parser (parse, Outcome) where
 
+-- TODO: add key-wildcards to combos
+
 import Result exposing (andThen)
 import Keys exposing (Key(..), Modifier(..), Modifiers)
 import ComboState exposing (..)
