@@ -64,14 +64,15 @@ kcs = Dict.fromList <|
   , (222, '\'')
   ]
 
-
 keyFromCode : KeyCode -> Key
 keyFromCode k = let
     result = Dict.get k specialKeys
+    c = Char.fromCode k
   in case result of
     Just key -> key
-    Nothing  -> Press <| Char.fromCode <| k
-
+    Nothing  -> case Char.isUpper c of
+      True  -> Press <| Char.toLower c
+      False -> Press c
 
 -- `Keyboard.keysDown` gives different KeyCodes than `Keyboard.presses`. Some
 -- outputs give weird results when converted to a character. This function
@@ -118,9 +119,6 @@ useKeysDown raw = case raw of
                               [k] -> isSpecial k
                               _   -> False
   _ -> False
-
-pressFromCode : KeyCode -> Key
-pressFromCode k = Press <| Char.fromCode k
 
 toKey : RawKeys -> Maybe Key
 toKey raw = case raw of
