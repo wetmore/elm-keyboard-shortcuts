@@ -20,9 +20,11 @@ root (tree, xs) = case xs of
 {-| Goes to the root if there is no transition for the provided input -}
 goTo : T -> ZipperTree a -> ZipperTree a
 goTo t (tree, fs) = case tree of 
-  Leaf _ -> root (tree, fs)
+  Leaf _ -> goTo t <| root (tree, fs)
   Node f -> case eval f t of
-    Nothing    -> root (tree, fs)
+    Nothing    -> case fs of 
+      [] -> (tree, fs) -- we are already at the root
+      _  -> goTo t <| root (tree, fs)
     Just tree' -> (tree', f::fs)
 
 treeState : Tree a -> Signal (ZipperTree a)
@@ -36,7 +38,7 @@ fromTree t default = let
   in Signal.filterMap fn default <| treeState t
 
 expireDelay : Time
-expireDelay = second
+expireDelay = second / 2
 
 withExpires : Signal T
 withExpires = let
