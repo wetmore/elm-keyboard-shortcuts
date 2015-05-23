@@ -1,4 +1,4 @@
-module Parser (parse, Outcome) where
+module Parser (parse, parsePairs, Outcome) where
 
 -- TODO: add key-wildcards to combos
 
@@ -11,23 +11,34 @@ import Maybe
 import List exposing (head, tail, reverse)
 import String
 
+type alias Combo = List Key
 type alias Outcome a = Result String a
 
 parse : String -> Outcome Combo
 parse s = sequence <| List.map parseAtoms <| String.split " " s
 
+zip = List.map2 (,)
+
+parsePairs : List (String, a) -> Outcome (List (Combo, a))
+parsePairs ps = let
+    (strings, acts) = List.unzip ps
+    parsed = sequence <| List.map parse strings -- Outcome (List Combo)
+  in Result.map (flip zip acts) parsed
+
 -- Returns an atom for a sequence, so some Key
 parseAtoms : String -> Outcome Key
-parseAtoms s = case cotail <| String.split "+" s of
-  Nothing -> Err "Somehow String.split returned an empty list."
-  Just (mods, key) -> let
-    parsedMods = sequence <| List.map parseModifier mods
-    parsedKey  = parseKey key
-    pair = Result.map2 (,) parsedMods parsedKey
-    makeKey (x,y) = case x of
-      [] -> Ok <| y
-      xs -> Ok <| mergeModifiers xs y 
-  in pair `andThen` makeKey
+parseAtoms s = case s of
+  "" -> Err "Combo string must be non-empty."
+  _  -> case cotail <| String.split "+" s of
+    Nothing -> Err "Somehow String.split returned an empty list."
+    Just (mods, key) -> let
+      parsedMods = sequence <| List.map parseModifier mods
+      parsedKey  = parseKey key
+      pair = Result.map2 (,) parsedMods parsedKey
+      makeKey (x,y) = case x of
+        [] -> Ok <| y
+        xs -> Ok <| mergeModifiers xs y 
+    in pair `andThen` makeKey
 
 mergeModifiers : Modifiers -> Key -> Key
 mergeModifiers ms key = case key of
