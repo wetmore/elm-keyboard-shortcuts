@@ -2,7 +2,7 @@ module Parser (parse, parsePairs, Outcome) where
 
 -- TODO: add key-wildcards to combos
 
-import Result exposing (andThen)
+import Result exposing (andThen, formatError)
 import Keys exposing (Key(..), Modifier(..), Modifiers)
 import ComboState exposing (..)
 
@@ -15,7 +15,9 @@ type alias Combo = List Key
 type alias Outcome a = Result String a
 
 parse : String -> Outcome Combo
-parse s = sequence <| List.map parseAtoms <| String.split " " s
+parse s = let
+    f err = "Error parsing " ++ s ++ ": " ++ err
+  in formatError f << sequence <| List.map parseAtoms <| String.split " " s
 
 zip = List.map2 (,)
 
@@ -38,7 +40,7 @@ parseAtoms s = case s of
       makeKey (x,y) = case x of
         [] -> Ok <| y
         xs -> Ok <| mergeModifiers xs y 
-    in pair `andThen` makeKey
+      in pair `andThen` makeKey
 
 mergeModifiers : Modifiers -> Key -> Key
 mergeModifiers ms key = case key of
