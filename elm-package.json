@@ -1,16 +1,17 @@
 {
     "version": "1.0.0",
-    "summary": "helpful summary of your project, less than 80 characters",
-    "repository": "https://github.com/USER/PROJECT.git",
+    "summary": "Handle keyboard shortcuts in Elm.",
+    "repository": "https://github.com/wetmore/elm-keyboard-shortcuts.git",
     "license": "BSD3",
     "source-directories": [
-        "."
+        "src"
     ],
-    "exposed-modules": [],
+    "exposed-modules": [
+        "KeyboardShortcuts"
+    ],
     "dependencies": {
         "Apanatshka/elm-signal-extra": "5.1.0 <= v < 6.0.0",
-        "elm-lang/core": "2.0.1 <= v < 3.0.0",
-        "evancz/automaton": "1.0.1 <= v < 2.0.0"
+        "elm-lang/core": "2.0.1 <= v < 3.0.0"
     },
     "elm-version": "0.15.0 <= v < 0.16.0"
 }

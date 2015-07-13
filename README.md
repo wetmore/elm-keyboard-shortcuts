@@ -1,12 +1,12 @@
 # Elm Keyboard Shortcuts
 
-This is a package for handling keyboard shortcuts in Elm.
+This is a package for handling keyboard shortcuts in Elm. The API and concepts are inspired by the [mousetrap](https://craig.is/killing/mice) library for Javascript.
 
-Users provide a list of pairs associating keyboard shortcuts like "ctrl+r" or "g i" (pressing 'g', then pressing 'i') to actions. Actions can be elements of any particular type - strings, functions, or whatever data type you come up with. The result is a Signal of these actions, which updates with a new action whenever the necessary keyboard shortcut is entered.
+Users provide a list of pairs associating keyboard shortcuts like "ctrl+r" or "g i" (pressing 'g', then pressing 'i') to actions. Actions can be elements of any particular type - strings, functions, or whatever data type you come up with. The result is a Signal of these actions, which updates with a new action whenever the relevant keyboard shortcut is entered.
 
 # Examples
 
-Soon
+To view the examples, run `elm-reactor` and open any of the files in the `examples` directory.
 
 # API
 
@@ -17,7 +17,14 @@ Since parsing keyboard shortcuts from the provided strings may possibly fail if 
 # Todo
 
 - [ ] Documentation.
-- [ ] Come up with better names for the necessary concepts.
-- [ ] Better error messages in parser (report the full string that failed)
+- [x] Come up with better names for the necessary concepts.
+- [ ] Tests
+- [ ] Better error messages in parser
+  - [x] Report the full string that failed
+  - [ ] List known inputs when parser fails with "unknown input"
 - [ ] Write little demo app.
 - [ ] Release package.
+
+# Future features
+
+- [ ] Key wildcards?
