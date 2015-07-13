@@ -1,9 +1,9 @@
-module ComboState where
+module ShortcutState where
 
-import Keys exposing (..)
+import Keys exposing (keys)
 import Time exposing (..)
-import Tree exposing (..)
-import Signal exposing ((<~))
+import Tree exposing (T(..), Tree(..), PartialFunc, eval)
+import Signal
 import Signal.Time exposing (settledAfter)
 
 
@@ -19,7 +19,7 @@ goTo : T -> ZipperTree a -> ZipperTree a
 goTo t (tree, fs) = case tree of 
   Leaf _ -> goTo t <| root (tree, fs)
   Node f -> case eval f t of
-    Nothing    -> case fs of 
+    Nothing -> case fs of 
       [] -> (tree, fs) -- we are already at the root
       _  -> goTo t <| root (tree, fs)
     Just tree' -> (tree', f::fs)

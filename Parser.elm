@@ -1,6 +1,5 @@
-module Parser (parse, parsePairs, Outcome) where
+module Parser (parse, parsePairs) where
 
-import ComboState exposing (..)
 import Dict exposing (Dict)
 import Keys exposing (Key(..), Modifier(..), Modifiers)
 import List exposing (head, tail, reverse)
@@ -9,17 +8,17 @@ import Result exposing (andThen, formatError)
 import String
 
 
-type alias Combo = List Key
+type alias Shortcut = List Key
 type alias Outcome a = Result String a
 
-parse : String -> Outcome Combo
+parse : String -> Outcome Shortcut
 parse s = let
     f err = "Error parsing " ++ s ++ ": " ++ err
   in formatError f << sequence <| List.map parseAtoms <| String.split " " s
 
 zip = List.map2 (,)
 
-parsePairs : List (String, a) -> Outcome (List (Combo, a))
+parsePairs : List (String, a) -> Outcome (List (Shortcut, a))
 parsePairs ps = let
     (strings, acts) = List.unzip ps
     parsed = sequence <| List.map parse strings
@@ -28,26 +27,26 @@ parsePairs ps = let
 -- Returns an atom for a sequence, so some Key
 parseAtoms : String -> Outcome Key
 parseAtoms s = case s of
-  "" -> Err "Combo string must be non-empty."
+  "" -> Err "Shortcut string must be non-empty."
   _  -> case cotail <| String.split "+" s of
     Nothing -> Err "Somehow String.split returned an empty list."
     Just (mods, key) -> let
-      parsedMods = sequence <| List.map parseModifier mods
-      parsedKey  = parseKey key
-      pair = Result.map2 (,) parsedMods parsedKey
-      makeKey (x,y) = case x of
-        [] -> Ok <| y
-        xs -> Ok <| mergeModifiers xs y 
+        parsedMods = sequence <| List.map parseModifier mods
+        parsedKey  = parseKey key
+        pair = Result.map2 (,) parsedMods parsedKey
+        makeKey (x,y) = case x of
+          [] -> Ok <| y
+          xs -> Ok <| mergeModifiers xs y 
       in pair `andThen` makeKey
 
 mergeModifiers : Modifiers -> Key -> Key
 mergeModifiers ms key = case key of
-  (Chord ms' k) -> let
+  (Combo ms' k) -> let
       merge = List.foldr (\x ys -> if x `List.member` ys then ys else x :: ys)
-    in Chord (merge ms ms') k
+    in Combo (merge ms ms') k
   k -> case ms of
     [] -> k
-    _  -> Chord ms k  
+    _  -> Combo ms k  
 
 -- Outcome forms a monad
 return : a -> Outcome a
@@ -82,7 +81,7 @@ parseKey s = case s of
   "plus"   -> Ok <| Press '+'
   x        -> case String.toList x of
     [c] -> Ok <| case Dict.get c shiftMap of
-      Just downShifted -> Chord [Shift] (Press downShifted)
+      Just downShifted -> Combo [Shift] (Press downShifted)
       Nothing          -> Press c
     _   -> Err <| "Unknown non-modifier key: " ++ x
 
@@ -94,23 +93,23 @@ cotail list = let
 
 shiftMap : Dict Char Char
 shiftMap = Dict.fromList <|
-       [ ('~', '`')
-       , ('!', '1')
-       , ('@', '2')
-       , ('#', '3')
-       , ('$', '4')
-       , ('%', '5')
-       , ('^', '6')
-       , ('&', '7')
-       , ('*', '8')
-       , ('(', '9')
-       , (')', '0')
-       , ('_', '-')
-       , ('+', '=')
-       , (':', ';')
-       , ('"', '\'')
-       , ('<', ',')
-       , ('>', '.')
-       , ('?', '/')
-       , ('|', '\\')
-       ]
+  [ ('~', '`')
+  , ('!', '1')
+  , ('@', '2')
+  , ('#', '3')
+  , ('$', '4')
+  , ('%', '5')
+  , ('^', '6')
+  , ('&', '7')
+  , ('*', '8')
+  , ('(', '9')
+  , (')', '0')
+  , ('_', '-')
+  , ('+', '=')
+  , (':', ';')
+  , ('"', '\'')
+  , ('<', ',')
+  , ('>', '.')
+  , ('?', '/')
+  , ('|', '\\')
+  ]

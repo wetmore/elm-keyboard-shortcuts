@@ -1,18 +1,19 @@
-module Keys where
+module Keys (Key(..), Modifier(..), Modifiers, keys) where
 
 import Char
 import Dict exposing (Dict)
 import Keyboard exposing (KeyCode)
 import List
 import Set exposing (Set)
-import Signal exposing ((<~), (~))
+import Signal exposing ((<~))
 import Signal.Extra exposing (switchWhen)
 
 
 type Modifier = Shift | Ctrl | Alt | Meta
 type alias Modifiers = List Modifier
-type Key  = Press Char | Chord Modifiers Key
-          | Esc | Return | Tab | CapsLock | Up | Down | Left | Right
+
+type Key = Press Char | Combo Modifiers Key
+         | Esc | Return | Tab | CapsLock | Up | Down | Left | Right
 
 type RawKeys = KeysDown (Set KeyCode, Set KeyCode) | Presses KeyCode
 
@@ -70,7 +71,7 @@ keyFromCode k = let
 -- `Keyboard.keysDown` gives different KeyCodes than `Keyboard.presses`. Some
 -- outputs give weird results when converted to a character. This function
 -- normalizes some of the weird results so that the Press we associate with
--- a chord makes sense.
+-- a combo makes sense.
 pressFromKeyDown : KeyCode -> Key
 pressFromKeyDown k = let
     result = Dict.get k kcs
@@ -122,7 +123,7 @@ toKey raw = case raw of
     in case keys of
       [k] -> Just <| case mods of 
         [] -> pressFromKeyDown k
-        _  -> Chord (mapAndCollapse toModifier mods) <| pressFromKeyDown k
+        _  -> Combo (mapAndCollapse toModifier mods) <| pressFromKeyDown k
       _   -> Nothing
 
 s : Signal RawKeys

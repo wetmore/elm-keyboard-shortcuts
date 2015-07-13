@@ -12,7 +12,7 @@ The trees we use have the following type:
 @docs Tree
 
 In order to understand this type, one needs to see the definition of a
-PartialFunction as well:
+PartialFunc as well:
 
 @docs PartialFunc
 
@@ -23,21 +23,21 @@ elements of the following type:
 
 # Useful operations
 
-The main functionality exported by this module is `treeFromCombos`, which leans
-heavily on `addPath`.
+The main functionality exported by this module is `treeFromShortcuts`, which
+leans heavily on `addPath`.
 
-@docs treeFromCombos, addPath
+@docs treeFromShortcuts, addPath
 -}
 
 import Keys exposing (..)
 import List
 
 
-type alias Combo = List Key
+type alias Shortcut = List Key
 
 {-| When handling keypresses, we also need to handle what happens if the user
 stops entering a combination. After a preset timeout duration (found in
-`ComboState`), if there is no input from the user, the system will stop waiting
+`ShortcutState`), if there is no input from the user, the system will stop waiting
 for the user to complete whatever combo they are entering.
 
 This allows us to handle combinations which are initial segments of each other.
@@ -109,7 +109,7 @@ sequences "a b" and "a b c", associated to actions 1 and 2 respectively. To
 access the action associated to "a b", there must be a sequence of "a", "b", and
 then an Expire.
 -}
-addPath : (Combo, a) -> Tree a -> Tree a
+addPath : (Shortcut, a) -> Tree a -> Tree a
 addPath (xs, act) tree = case xs of
   [] -> case tree of
     -- note this will overwrite previous actions at this point if they exist
@@ -126,15 +126,8 @@ addPath (xs, act) tree = case xs of
         Nothing -> Node <| extend delta (Event k) newNode
         Just t  -> Node <| extend delta (Event k) (addPath (ks, act) t)
 
-{-| Given a list of combinations and associated actions, builds a tree, whose
-paths to the leaves are precisely the combinations from the inputs.
+{-| Given a list of shortcuts and associated actions, builds a tree, whose
+paths to the leaves are precisely the shortcuts from the inputs.
 -}
-treeFromCombos : List (Combo, a) -> Tree a
-treeFromCombos = List.foldl addPath emptyTree
-
-testTree = let
-    t1 = addPath ([Press 'a', Press 'b'], 1) emptyTree
-    t2 = addPath ([Press 'a', Press 'b', Press 'c'], 2) t1
-    t3 = addPath ([Press 'b', Press 'c'], 3) t2
-    t4 = addPath ([Press 'a', Press 'c'], 4) t3
-  in t4
+treeFromShortcuts : List (Shortcut, a) -> Tree a
+treeFromShortcuts = List.foldl addPath emptyTree

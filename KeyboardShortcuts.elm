@@ -1,18 +1,18 @@
-module KeyCombos where
+module KeyboardShortcuts where
 
-import Keys exposing (..)
-import ComboState exposing (..)
-import Parser exposing (..)
-import Tree exposing (..)
+import Keys exposing (Key)
+import Parser exposing (parsePairs)
+import ShortcutState exposing (fromTree)
+import Tree exposing (treeFromShortcuts)
 
 import Graphics.Element exposing (..)
 import Signal exposing ((<~))
 import Result
 
-type alias Combo = List Key
+type alias Shortcut = List Key
 
-listenFor' : a -> List (Combo, a) -> Signal a
-listenFor' def pairs = fromTree (treeFromCombos pairs) def
+listenFor' : a -> List (Shortcut, a) -> Signal a
+listenFor' def pairs = fromTree (treeFromShortcuts pairs) def
 
 listenForWithErr : a -> List (String, a) -> Result String (Signal a)
 listenForWithErr def pairs = Result.map (listenFor' def) <| parsePairs pairs
