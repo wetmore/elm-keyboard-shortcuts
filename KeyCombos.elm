@@ -22,11 +22,13 @@ listenFor def pairs = case listenForWithErr def pairs of
   Err _ -> Signal.constant def
   Ok s  -> s
 
+(:->) = (,)
+
 test = let
-    pairs = [ ("a b", 1)
-            , ("a b c", 2)
-            , ("ctrl+c", 3)
-            , ("up up down down left right left right b a enter", 9000)
+    pairs = [ "a b"    :-> 1
+            , "a b c"  :-> 2
+            , "ctrl+c" :-> 3
+            , "up up down down left right left right b a enter" :-> 9001
             ]
   in listenFor 0 pairs
 

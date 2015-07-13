@@ -1,14 +1,11 @@
 module ComboState where
 
-import Tree exposing (..)
 import Keys exposing (..)
 import Time exposing (..)
+import Tree exposing (..)
 import Signal exposing ((<~))
 import Signal.Time exposing (settledAfter)
 
-import String
-
-import Graphics.Element exposing (..)
 
 type alias ZipperTree a = (Tree a, List (PartialFunc T (Tree a)))
 
@@ -44,16 +41,3 @@ withExpires : Signal T
 withExpires = let
     expires = delay expireDelay <| Signal.map (always Expire) keys
   in Signal.merge (Signal.map Event keys) (settledAfter expireDelay expires)
-
-test = fromTree testTree 0
-
-main : Signal Element
-main = (\x -> flow down (List.map draw x)) <~ (Signal.foldp (::) [] <| treeState testTree)
-
-draw (tree, fs) = let
-    past = String.concat <| List.map (always "o-") fs 
-    now = case tree of
-      Leaf x -> toString x
-      _      -> "o"
-  in show <| String.append past now
-

@@ -1,15 +1,13 @@
 module Parser (parse, parsePairs, Outcome) where
 
--- TODO: add key-wildcards to combos
-
-import Result exposing (andThen, formatError)
-import Keys exposing (Key(..), Modifier(..), Modifiers)
 import ComboState exposing (..)
-
 import Dict exposing (Dict)
-import Maybe
+import Keys exposing (Key(..), Modifier(..), Modifiers)
 import List exposing (head, tail, reverse)
+import Maybe
+import Result exposing (andThen, formatError)
 import String
+
 
 type alias Combo = List Key
 type alias Outcome a = Result String a
@@ -24,7 +22,7 @@ zip = List.map2 (,)
 parsePairs : List (String, a) -> Outcome (List (Combo, a))
 parsePairs ps = let
     (strings, acts) = List.unzip ps
-    parsed = sequence <| List.map parse strings -- Outcome (List Combo)
+    parsed = sequence <| List.map parse strings
   in Result.map (flip zip acts) parsed
 
 -- Returns an atom for a sequence, so some Key
@@ -51,6 +49,7 @@ mergeModifiers ms key = case key of
     [] -> k
     _  -> Chord ms k  
 
+-- Outcome forms a monad
 return : a -> Outcome a
 return = Ok
 

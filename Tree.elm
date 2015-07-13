@@ -29,9 +29,9 @@ heavily on `addPath`.
 @docs treeFromCombos, addPath
 -}
 
-
 import Keys exposing (..)
 import List
+
 
 type alias Combo = List Key
 

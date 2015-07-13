@@ -1,19 +1,13 @@
 module Keys where
 
+import Char
+import Dict exposing (Dict)
 import Keyboard exposing (KeyCode)
-import Signal exposing ((<~), (~))
-import Set exposing (Set)
 import List
-import Graphics.Element exposing (..)
+import Set exposing (Set)
+import Signal exposing ((<~), (~))
 import Signal.Extra exposing (switchWhen)
 
-
-import Graphics.Input.Field as Field
-
-
-import Dict exposing (Dict)
-import String
-import Char
 
 type Modifier = Shift | Ctrl | Alt | Meta
 type alias Modifiers = List Modifier
@@ -21,7 +15,6 @@ type Key  = Press Char | Chord Modifiers Key
           | Esc | Return | Tab | CapsLock | Up | Down | Left | Right
 
 type RawKeys = KeysDown (Set KeyCode, Set KeyCode) | Presses KeyCode
-
 
 specialKeys = Dict.fromList <|
   [ (9, Tab)
@@ -137,12 +130,3 @@ s = switchWhen (Signal.map useKeysDown rawKeys) rawKeys (Signal.map Presses Keyb
 
 keys : Signal Key
 keys = Signal.filterMap toKey Esc s
-
-main : Signal Element
-main = (\x -> flow down (List.map show x)) <~ (Signal.foldp (::) [] keys)
-
-
-draw list = let
-    letters = List.map (\(_,x) -> List.map Char.fromCode <| Set.toList x) list
-    string = String.concat <| List.map String.fromList letters
-  in show (String.reverse string) 
