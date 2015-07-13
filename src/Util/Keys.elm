@@ -1,4 +1,4 @@
-module Keys (Key(..), Modifier(..), Modifiers, keys) where
+module Util.Keys (Key(..), Modifier(..), Modifiers, keys) where
 
 import Char
 import Dict exposing (Dict)

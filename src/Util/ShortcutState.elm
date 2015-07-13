@@ -1,10 +1,10 @@
-module ShortcutState where
+module Util.ShortcutState where
 
-import Keys exposing (keys)
 import Time exposing (..)
-import Tree exposing (T(..), Tree(..), PartialFunc, eval)
 import Signal
 import Signal.Time exposing (settledAfter)
+import Util.Keys exposing (keys)
+import Util.Tree exposing (T(..), Tree(..), PartialFunc, eval)
 
 
 type alias ZipperTree a = (Tree a, List (PartialFunc T (Tree a)))

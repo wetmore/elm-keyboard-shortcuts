@@ -1,11 +1,11 @@
-module Parser (parse, parsePairs) where
+module Util.Parser (parse, parsePairs) where
 
 import Dict exposing (Dict)
-import Keys exposing (Key(..), Modifier(..), Modifiers)
 import List exposing (head, tail, reverse)
 import Maybe
 import Result exposing (andThen, formatError)
 import String
+import Util.Keys exposing (Key(..), Modifier(..), Modifiers)
 
 
 type alias Shortcut = List Key

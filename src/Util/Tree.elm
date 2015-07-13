@@ -1,4 +1,4 @@
-module Tree where
+module Util.Tree where
 {-| In order to find keyboard combinations within the inputs coming from
 `Keys.keys`, we build a tree. The edges in this tree have labels. Each leaf
 holds an action. Each path from the root to a leaf in the tree corresponds to a
@@ -29,8 +29,8 @@ leans heavily on `addPath`.
 @docs treeFromShortcuts, addPath
 -}
 
-import Keys exposing (..)
 import List
+import Util.Keys exposing (..)
 
 
 type alias Shortcut = List Key
