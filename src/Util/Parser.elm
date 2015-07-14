@@ -13,7 +13,7 @@ type alias Outcome a = Result String a
 
 parse : String -> Outcome Shortcut
 parse s = let
-    f err = "Error parsing " ++ s ++ ": " ++ err
+    f err = "Error parsing " ++ quote s ++ ": " ++ err
   in formatError f << sequence <| List.map parseAtoms <| String.split " " s
 
 zip = List.map2 (,)
@@ -61,8 +61,9 @@ parseModifier : String -> Outcome Modifier
 parseModifier s = case Dict.get (toLower s) modMap of
   Just mod -> Ok mod
   Nothing -> let
-      valids = String.concat <| List.intersperse ", " <| Dict.keys modMap
-    in Err <| "Unknown modifier: " ++ s ++ ". Valid modifiers are " ++ valids
+      valids = showList <| Dict.keys modMap
+    in Err <|
+      "Unknown modifier: " ++ quote s ++ ". Valid modifiers are " ++ valids
 
 parseKey : String -> Outcome Key
 parseKey s = case String.toList s of
@@ -72,8 +73,15 @@ parseKey s = case String.toList s of
   _   -> case Dict.get (toLower s) keyMap of
       Just key -> Ok key
       Nothing  -> let
-          valids = String.concat <| List.intersperse ", " <| Dict.keys keyMap
-        in Err <| "Unknown key: " ++ s ++ ". Maybe you meant one of " ++ valids
+          valids = showList <| Dict.keys keyMap
+        in Err <|
+          "Unknown key: " ++ quote s ++ ". Maybe you meant one of " ++ valids
+
+quote s = "\"" ++ s ++ "\""
+
+showList l = case cotail (List.map quote l) of
+  Nothing      -> String.concat l
+  Just (xs, x) -> String.concat <| (List.intersperse ", " xs) ++ [", or ", x] 
 
 cotail : List a -> Maybe (List a, a)
 cotail list = let
