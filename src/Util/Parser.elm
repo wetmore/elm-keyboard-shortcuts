@@ -4,7 +4,7 @@ import Dict exposing (Dict)
 import List exposing (head, tail, reverse)
 import Maybe
 import Result exposing (andThen, formatError)
-import String
+import String exposing (toLower)
 import Util.Keys exposing (Key(..), Modifier(..), Modifiers)
 
 
@@ -58,32 +58,22 @@ sequence ms = let
   in List.foldr k (return []) ms
 
 parseModifier : String -> Outcome Modifier
-parseModifier s = case s of
-  "shift"   -> Ok Shift
-  "ctrl"    -> Ok Ctrl
-  "alt"     -> Ok Alt
-  "meta"    -> Ok Meta
-  "command" -> Ok Meta
-  "windows" -> Ok Meta
-  x         -> Err <| "Unknown modifier: " ++ x
+parseModifier s = case Dict.get (toLower s) modMap of
+  Just mod -> Ok mod
+  Nothing -> let
+      valids = String.concat <| List.intersperse ", " <| Dict.keys modMap
+    in Err <| "Unknown modifier: " ++ s ++ ". Valid modifiers are " ++ valids
 
 parseKey : String -> Outcome Key
-parseKey s = case s of
-  "esc"    -> Ok Esc
-  "return" -> Ok Return
-  "enter"  -> Ok Return
-  "tab"    -> Ok Tab
-  "caps"   -> Ok CapsLock
-  "up"     -> Ok Up
-  "down"   -> Ok Down
-  "left"   -> Ok Left
-  "right"  -> Ok Right
-  "plus"   -> Ok <| Press '+'
-  x        -> case String.toList x of
-    [c] -> Ok <| case Dict.get c shiftMap of
-      Just downShifted -> Combo [Shift] (Press downShifted)
-      Nothing          -> Press c
-    _   -> Err <| "Unknown non-modifier key: " ++ x
+parseKey s = case String.toList s of
+  [c] -> Ok <| case Dict.get c shiftMap of
+    Just downShifted -> Combo [Shift] (Press downShifted)
+    Nothing          -> Press c
+  _   -> case Dict.get (toLower s) keyMap of
+      Just key -> Ok key
+      Nothing  -> let
+          valids = String.concat <| List.intersperse ", " <| Dict.keys keyMap
+        in Err <| "Unknown key: " ++ s ++ ". Maybe you meant one of " ++ valids
 
 cotail : List a -> Maybe (List a, a)
 cotail list = let
@@ -91,25 +81,52 @@ cotail list = let
     addHead tl = Maybe.map ((,) tl) <| head flipped
   in tail flipped `Maybe.andThen` addHead
 
+(:->) = (,)
+
+keyMap : Dict String Key
+keyMap = Dict.fromList <|
+  [ "esc"    :-> Esc
+  , "return" :-> Return
+  , "enter"  :-> Return
+  , "tab"    :-> Tab
+  , "caps"   :-> CapsLock
+  , "up"     :-> Up
+  , "down"   :-> Down
+  , "left"   :-> Left
+  , "right"  :-> Right
+  , "plus"   :-> Press '+'
+  ]
+
+modMap : Dict String Modifier
+modMap = Dict.fromList <|
+  [ "shift"   :-> Shift
+  , "ctrl"    :-> Ctrl
+  , "option"  :-> Alt
+  , "alt"     :-> Alt
+  , "meta"    :-> Meta
+  , "command" :-> Meta
+  , "windows" :-> Meta
+  ]
+
 shiftMap : Dict Char Char
 shiftMap = Dict.fromList <|
-  [ ('~', '`')
-  , ('!', '1')
-  , ('@', '2')
-  , ('#', '3')
-  , ('$', '4')
-  , ('%', '5')
-  , ('^', '6')
-  , ('&', '7')
-  , ('*', '8')
-  , ('(', '9')
-  , (')', '0')
-  , ('_', '-')
-  , ('+', '=')
-  , (':', ';')
-  , ('"', '\'')
-  , ('<', ',')
-  , ('>', '.')
-  , ('?', '/')
-  , ('|', '\\')
+  [ '~' :-> '`'
+  , '!' :-> '1'
+  , '@' :-> '2'
+  , '#' :-> '3'
+  , '$' :-> '4'
+  , '%' :-> '5'
+  , '^' :-> '6'
+  , '&' :-> '7'
+  , '*' :-> '8'
+  , '(' :-> '9'
+  , ')' :-> '0'
+  , '_' :-> '-'
+  , '+' :-> '='
+  , ':' :-> ';'
+  , '"' :-> '\''
+  , '<' :-> ','
+  , '>' :-> '.'
+  , '?' :-> '/'
+  , '|' :-> '\\'
   ]

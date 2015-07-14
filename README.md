@@ -52,9 +52,9 @@ Since parsing keyboard shortcuts from the provided strings may possibly fail if 
 - [ ] Documentation.
 - [x] Come up with better names for the necessary concepts.
 - [ ] Tests
-- [ ] Better error messages in parser
+- [x] Better error messages in parser
   - [x] Report the full string that failed
-  - [ ] List known inputs when parser fails with "unknown input"
+  - [x] List known inputs when parser fails with "unknown input"
 - [ ] Write little demo app.
 - [ ] Release package.
 

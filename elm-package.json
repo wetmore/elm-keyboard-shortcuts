@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "summary": "Handle keyboard shortcuts in Elm.",
+    "summary": "Handle keyboard shortcuts in Elm",
     "repository": "https://github.com/wetmore/elm-keyboard-shortcuts.git",
     "license": "BSD3",
     "source-directories": [
