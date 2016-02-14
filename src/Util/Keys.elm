@@ -2,11 +2,11 @@ module Util.Keys (Key(..), Modifier(..), Modifiers, keys) where
 
 import Char
 import Dict exposing (Dict)
-import Keyboard exposing (KeyCode)
+import Char exposing (KeyCode)
 import List
 import Set exposing (Set)
-import Signal exposing ((<~))
 import Signal.Extra exposing (switchWhen)
+import Keyboard
 
 
 type Modifier = Shift | Ctrl | Alt | Meta
@@ -100,7 +100,7 @@ emptyPair = (Set.empty, Set.empty)
 keys' : Signal (Set KeyCode, Set KeyCode)
 keys' = let
     fn (w,x) (_,z) = (w, x `Set.diff` z)
-  in Signal.foldp fn emptyPair <| Set.partition isModifier <~ Keyboard.keysDown
+  in Signal.foldp fn emptyPair <| Signal.map (Set.partition isModifier) Keyboard.keysDown
 
 rawKeys : Signal RawKeys
 rawKeys = Signal.map KeysDown <| Signal.filter ((/=) emptyPair) emptyPair keys'
